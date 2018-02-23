@@ -1,0 +1,97 @@
+                    <div class="form-group">
+                        <label for="email">Email </label>
+                        <input type="email" class="form-control" id="email" name="email" value="" aria-describedby="emailHelp" placeholder="moi@mail.ext">
+                        <small id="emailHelp" class="form-text text-muted">on comuniquera jamais votre email .</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Mot passe</label>
+                        <input type="password" class="form-control" id="password" name="password" value="" placeholder="Password">
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input id="memoriser" type="checkbox" name="memoriser" value="oui" class="form-check-input">
+                            se souvenir de moi
+                        </label>
+                    </div>
+                    <p id="erreur_connection" style="color:red;"></p>
+                    <button type="button" id="submit" class="btn btn-primary">connecter</button>
+<script type="text/javascript">
+var return_first;
+function callback(response){
+  return_first = response;
+}
+$("#submit").on("click", function() {
+
+  var email    = $("#email").val();
+  var password = $("#password").val();
+  var memoriser= $("#memoriser").val();
+  if(login == "" || password == "") {
+    alert("Tous les champs doivent êtres remplis");
+  }else{
+        $("#changement").css("text-align","center");
+        $("#changement").html("<img id=\"ajaxLoading\" style=\"margin-left:auto;margin-right:auto;diplay:inline;width:auto\" src=\"img/loading.gif\" alt=\"Loading\" />");
+      $.ajax({
+      url: "login.php",
+      global:false,
+      method: "POST",
+      data: {email: email, password: password,memoriser : memoriser},
+      beforesend: function(){
+        $("#login").html("<img id=\"ajaxLoading\" src=\"img/loading.gif\" alt=\"Loading\" />");
+      },
+      success: function(data){
+          $("#changement").css("text-align","");
+          console.log(data);
+        data=data.split(',');
+        if(data[data.length-1]==="conecte"){
+        $("#login").html("<p style='text-align:center'> vous êtes conecté <b>"+data[2]+" "+data[1]+"</b></p>");
+        $("#user").html(data[2]+" "+data[1]);
+        $("#navli").load("Vue/gestion.php");
+        $("#commenter").load("Vue/commenter.php");
+        callback(data);
+        }else {
+        $("#erreur_connection").html("Login ou identifiant incorect");
+        }
+      },
+      error:function(){
+        $("#login").html("une erreur est survenue veuillez reeseiller plus tard");
+      }   
+    });
+  }
+});
+
+$(document).ready(function(){
+    $("#recherche").keyup(function(){
+        var txt = $("#recherche").val();
+        if(txt.length>0){
+      $.get("sugestions.php", {recherche: txt}, function(result){
+            console.log(result);
+            result=JSON.parse(result);  
+            if(result[0]=="pas de sugestion,"){
+            $("#sugere").html("<option value='pas de sugestion'>");
+            }
+            else{
+           // var tab= result;
+            $("#sugere").empty();
+            console.log(result);
+                for(var key in result){
+                  $("#sugere").append("<option  value='"+(result[key]['nom']).toLowerCase()+"'>");
+                  //$("#sugestiones").append(result['recette'][key]+" "+key+",");
+                }
+            }
+          });         
+        }
+       
+    }); 
+});
+$(document).ready(function(){
+//var nav = document.getElementsByClassName("nav-item");
+
+if(window.location.pathname =="/cuisine2/index.php"){
+  $(".nav-item:first").addClass( "active" );
+}
+if(window.location.pathname =="/cuisine2/recettes.php"){
+  $(".nav-item:nth-child(2)").addClass( "active" );
+}
+});
+
+</script>   
